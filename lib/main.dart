@@ -1,5 +1,9 @@
 import 'package:flutter/cupertino.dart';
 
+import 'src/home_page.dart';
+import 'src/livro.dart';
+import 'src/pesquisar_page.dart';
+
 void main() {
   runApp(Libria());
 }
@@ -10,6 +14,7 @@ class Libria extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CupertinoApp(
+      theme: CupertinoThemeData(brightness: Brightness.dark),
       home: CupertinoTabScaffold(
         tabBar: CupertinoTabBar(items: [
           BottomNavigationBarItem(
@@ -24,14 +29,14 @@ class Libria extends StatelessWidget {
             case 0:
               retorno = CupertinoTabView(
                 builder: (context) {
-                  return CupertinoPageScaffold(child: Text('Home'));
+                  return HomePage();
                 },
               );
               break;
             case 1:
               retorno = CupertinoTabView(
                 builder: (context) {
-                  return CupertinoPageScaffold(child: Text('Pesquisar'));
+                  return PesquisarPage();
                 },
               );
               break;
