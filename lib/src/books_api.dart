@@ -13,12 +13,11 @@ class BooksApi {
     if (response.statusCode == 200) {
       var jsonResponse = jsonDecode(response.body) as Map<String, dynamic>;
       var totalItems = jsonResponse["totalItems"] as int;
-      //print(response.body);
+      print(totalItems);
       if (totalItems == 0) {
         //lista vazia
         return null;
       }
-
       var listaItems = jsonResponse["items"] as List;
 
       return listaItems.map((livro) => Livro.fromJson(livro)).toList();
