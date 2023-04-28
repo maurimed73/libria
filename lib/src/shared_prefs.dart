@@ -22,4 +22,9 @@ class SharedPrefs {
 
     return lista;
   }
+
+  Future<void> excluirTodosLivros() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+  }
 }

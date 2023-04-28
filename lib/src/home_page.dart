@@ -24,30 +24,39 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    setState(() {
+      _futureLivros = SharedPrefs().consultarTodosLivros();
+    });
     return CupertinoPageScaffold(
         navigationBar: CupertinoNavigationBar(
-          middle: Text('Libria'),
-        ),
+            middle: Text('Libria'),
+            trailing: GestureDetector(
+              onTap: () async {
+                await SharedPrefs().excluirTodosLivros();
+                setState(() {
+                  _futureLivros = SharedPrefs().consultarTodosLivros();
+                });
+              },
+              child: Icon(CupertinoIcons.trash),
+            )),
         child: FutureBuilder<List<Livro>?>(
           future: _futureLivros,
           builder: (((context, snapshot) {
             if (snapshot.hasData) {
-              if (snapshot.data != null) {
-                return ListView.separated(
-                  itemCount: snapshot.data!.length,
-                  separatorBuilder: (context, index) {
-                    return Divider(
-                      color: Colors.white38,
-                    );
-                  },
-                  itemBuilder: (context, index) {
-                    return Text(snapshot.data![index].titulo);
-                  },
-                );
-              }
-              return Center(child: Text("Llista de livros vazia"));
+              return ListView.separated(
+                itemCount: snapshot.data!.length,
+                separatorBuilder: (context, index) {
+                  return Divider(
+                    color: Colors.white38,
+                  );
+                },
+                itemBuilder: (context, index) {
+                  return Text(snapshot.data![index].titulo);
+                },
+              );
+            } else {
+              return Center(child: Text("Lista está vazia"));
             }
-            return CupertinoActivityIndicator();
           })),
         ));
   }

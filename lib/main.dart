@@ -14,6 +14,7 @@ class Libria extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CupertinoApp(
+      debugShowCheckedModeBanner: false,
       theme: CupertinoThemeData(brightness: Brightness.dark),
       home: CupertinoTabScaffold(
         tabBar: CupertinoTabBar(items: [
