@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/widgets/placeholder.dart';
+import 'package:libria_app/src/books_api.dart';
+import 'package:libria_app/src/detalhar_page.dart';
 
 import 'livro.dart';
 import 'shared_prefs.dart';
@@ -14,50 +14,82 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  late Future<List<Livro>?> _futureLivros;
+  List<Livro>? _listaLivros = null;
 
-  @override
-  void initState() {
-    super.initState();
-    _futureLivros = SharedPrefs().consultarTodosLivros();
+  void consultarTodosLivros() async {
+    _listaLivros = await SharedPrefs().consultarTodosLivros();
+    setState(() {});
+  }
+
+  void _excluirTodosLivros() async {
+    await SharedPrefs().excluirTodosLivros();
+    setState(() {});
+  }
+
+  void _removerLivro(String id) async {
+    await SharedPrefs().excluirLivroPorId(id);
+    consultarTodosLivros();
   }
 
   @override
   Widget build(BuildContext context) {
-    setState(() {
-      _futureLivros = SharedPrefs().consultarTodosLivros();
-    });
+    consultarTodosLivros();
     return CupertinoPageScaffold(
         navigationBar: CupertinoNavigationBar(
             middle: Text('Libria'),
             trailing: GestureDetector(
-              onTap: () async {
-                await SharedPrefs().excluirTodosLivros();
-                setState(() {
-                  _futureLivros = SharedPrefs().consultarTodosLivros();
-                });
-              },
+              onTap: _excluirTodosLivros,
               child: Icon(CupertinoIcons.trash),
             )),
-        child: FutureBuilder<List<Livro>?>(
-          future: _futureLivros,
-          builder: (((context, snapshot) {
-            if (snapshot.hasData) {
-              return ListView.separated(
-                itemCount: snapshot.data!.length,
+        child: _listaLivros != null
+            ? ListView.separated(
+                itemCount: _listaLivros!.length,
                 separatorBuilder: (context, index) {
                   return Divider(
                     color: Colors.white38,
                   );
                 },
                 itemBuilder: (context, index) {
-                  return Text(snapshot.data![index].titulo);
+                  return Dismissible(
+                    key: Key(_listaLivros![index].id),
+                    background: Container(
+                      color: Colors.red,
+                      padding: EdgeInsets.only(right: 8),
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        child: Icon(
+                          CupertinoIcons.delete,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                    onDismissed: (direction) {
+                      _removerLivro(_listaLivros![index].id);
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 16),
+                      child: GestureDetector(
+                        onTap: () async {
+                          var livro = await BooksApi()
+                              .buscarLivroPorId(_listaLivros![index].id);
+
+                          Navigator.of(context).push(CupertinoPageRoute(
+                            builder: (context) => DetalharPage(livro),
+                          ));
+                        },
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(_listaLivros![index].titulo),
+                            Icon(CupertinoIcons.chevron_right)
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
                 },
-              );
-            } else {
-              return Center(child: Text("Lista está vazia"));
-            }
-          })),
-        ));
+              )
+            : Center(child: Text("Lista está vazia")));
   }
 }

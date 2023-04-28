@@ -27,4 +27,9 @@ class SharedPrefs {
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();
   }
+
+  Future<void> excluirLivroPorId(String id) async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.remove(id);
+  }
 }
